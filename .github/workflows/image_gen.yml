@@ -1,0 +1,29 @@
+name: Image Generator Bot
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  generate:
+    if: startsWith(github.event.comment.body, '/image ')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: 3209732
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Process Image
+        run: |
+          PROMPT=$(echo "${{ github.event.comment.body }}" | sed 's/\/image //')
+          ENCODED_PROMPT=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$PROMPT'))")
+          IMAGE_URL="https://pollinations.ai/p/$ENCODED_PROMPT?width=1024&height=1024&seed=42&model=flux"
+          
+          gh issue comment ${{ github.event.issue.number }} --body "🎨 **Generating your image for:** '$PROMPT'...  ![]($IMAGE_URL)"
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
