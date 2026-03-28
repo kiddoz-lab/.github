@@ -1,0 +1,21 @@
+name: Greeting Bot
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  greet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: 3209732
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Send Greeting
+        run: |
+          gh issue comment ${{ github.event.issue.number }} --body "Hello! Thanks for opening this issue. We will look into it soon!"
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
