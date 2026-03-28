@@ -1,4 +1,4 @@
-name: Image Generator Bot
+name: Image gen
 on:
   issue_comment:
     types: [created]
@@ -18,12 +18,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Process Image
+      - name: Process Image Turbo
         run: |
           PROMPT=$(echo "${{ github.event.comment.body }}" | sed 's/\/image //')
           ENCODED_PROMPT=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$PROMPT'))")
-          IMAGE_URL="https://pollinations.ai/p/$ENCODED_PROMPT?width=1024&height=1024&seed=42&model=flux"
+          IMAGE_URL="https://pollinations.ai/p/$ENCODED_PROMPT?width=1024&height=1024&seed=42&model=turbo"
           
-          gh issue comment ${{ github.event.issue.number }} --body "🎨 **Generating your image for:** '$PROMPT'...  ![]($IMAGE_URL)"
+          gh issue comment ${{ github.event.issue.number }} --body " **Image generated for:** '$PROMPT' \n\n ![]($IMAGE_URL)"
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
